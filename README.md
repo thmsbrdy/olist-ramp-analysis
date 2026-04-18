@@ -32,10 +32,10 @@ The Olist data is divided into 8 datasets and this project uses 3:
 **`queries.sql`** — three SQL queries that build toward the final analysis:
 
 - *Query 1* establishes a baseline — each seller's first sale, last sale, and total orders using `MIN`, `MAX`, and `COUNT` joined across the orders and order items tables.
-- *Query 2* calculates weekly GMS per seller indexed to their launch date. Days elapsed since first order are divided by 7 and floored to produce a relative week number. Price and freight value are summed per seller per week.
+- *Query 2* calculates weekly revenue per seller indexed to their launch date. Days elapsed since first order are divided by 7 and floored to produce a relative week number. Price and freight value are summed per seller per week.
 - *Query 3* is the core analysis, built as a chain of four CTEs. `weekly` replicates the Query 2 logic. `wow` adds week-over-week percent change using the `LAG()` window function partitioned by seller. `steady` uses `LEAD()` to identify the first two consecutive weeks where absolute WoW change is below 10% and week numbers are exactly one apart. `cohorts` applies a `CASE` statement to label each seller as `fast_ramp` (steady state by week 16), `slow_ramp` (weeks 17–52), or `did_not_stabilize`.
 
-**`visualize.py`** — connects to Postgres, pulls the Query 3 result into a pandas DataFrame, filters to sellers who joined before July 2017 and average at least $200 in weekly GMS, groups by cohort and week number, applies a 4-week rolling average to smooth volatility, and plots three ramp curves — one per cohort.
+**`visualize.py`** — connects to Postgres, pulls the Query 3 result into a pandas DataFrame, filters to sellers who joined before July 2017 and average at least $200 in weekly revenue, groups by cohort and week number, applies a 4-week rolling average to smooth volatility, and plots three ramp curves — one per cohort.
 
 ---
 
@@ -43,7 +43,7 @@ The Olist data is divided into 8 datasets and this project uses 3:
 
 The average time for a new Olist Seller to reach a steady state of sales was **29.8 weeks**.
 
-Contrary to what the tortoise and the hare might suggest, slow ramp Sellers ultimately outperformed fast ramp Sellers in long-term GMS. Fast ramp Sellers plateaued early at a lower revenue ceiling while slow ramp Sellers continued growing. The did not stabilize cohort generated the highest GMS but with the most volatility — these appear to be high-volume Sellers whose sales are driven by seasonality or promotions rather than consistent demand.
+Contrary to what the tortoise and the hare might suggest, slow ramp Sellers ultimately outperformed fast ramp Sellers in long-term revenue. Fast ramp Sellers plateaued early at a lower revenue ceiling while slow ramp Sellers continued growing. The did not stabilize cohort generated the highest revenue but with the most volatility — these appear to be high-volume Sellers whose sales are driven by seasonality or promotions rather than consistent demand.
 
 Compared to my experience with new vendor ramp at Amazon, 29.8 weeks aligns directionally with what I observed — which makes sense given this analysis focuses on serious, high-volume sellers rather than the full Olist seller population.
 

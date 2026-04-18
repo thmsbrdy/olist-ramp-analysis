@@ -99,8 +99,8 @@ for cohort, color in zip(cohorts, colors):
     plt.plot(cohort_data["week_number"], cohort_data["weekly_gms_smoothed"], label=cohort, color=color)
 
 plt.xlabel("Week Number")
-plt.ylabel("Average Weekly GMS")
-plt.title("Average GMS Ramp Curve by Cohort")
+plt.ylabel("Average Weekly Revenue")
+plt.title("Average Revenue Ramp Curve by Cohort")
 plt.legend()
 plt.grid(True)
 plt.tight_layout()

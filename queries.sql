@@ -15,8 +15,8 @@ ORDER BY first_purchase_date
 LIMIT 5;
 
 -- ============================================================
--- Query 2: Weekly GMS per seller relative to launch
--- Calculates GMS per week indexed to each seller's first order date
+-- Query 2: Weekly Revenue per seller relative to launch
+-- Calculates Revenue per week indexed to each seller's first order date
 -- ============================================================
 
 SELECT
@@ -24,7 +24,7 @@ SELECT
     , FLOOR(EXTRACT(DAY FROM (
         o.order_purchase_timestamp::timestamp - first_orders.first_purchase_date::timestamp
     )) / 7) + 1 AS week_number
-    , ROUND((SUM(oi.price + oi.freight_value) :: numeric), 2) AS weekly_GMS
+    , ROUND((SUM(oi.price + oi.freight_value) :: numeric), 2) AS weekly_Revenue
 FROM order_items oi
 JOIN orders o ON oi.order_id = o.order_id
 JOIN (
@@ -41,7 +41,7 @@ LIMIT 5;
 
 -- ============================================================
 -- Query 3: Steady state cohort segmentation
--- Identifies when each seller reaches steady state GMS
+-- Identifies when each seller reaches steady state
 -- using 2 consecutive weeks with WoW change < 10%
 -- Tags sellers as fast_ramp, slow_ramp, or did_not_stabilize
 -- ============================================================
@@ -50,7 +50,7 @@ WITH weekly AS (
     SELECT
         oi.seller_id
         , FLOOR(EXTRACT(DAY FROM (o.order_purchase_timestamp::timestamp - first_orders.first_purchase_date::timestamp)) / 7) + 1 AS week_number
-        , ROUND((SUM(oi.price + oi.freight_value) :: numeric), 2) AS weekly_GMS
+        , ROUND((SUM(oi.price + oi.freight_value) :: numeric), 2) AS weekly_Revenue
     FROM order_items oi
     JOIN orders o ON oi.order_id = o.order_id
     JOIN (
@@ -68,9 +68,9 @@ wow AS (
     SELECT
         seller_id
         , week_number
-        , weekly_gms
-        , LAG(weekly_gms) OVER (PARTITION BY seller_id ORDER BY week_number) AS previous_week_gms
-        , ROUND(((weekly_gms - LAG(weekly_gms) OVER (PARTITION BY seller_id ORDER BY week_number)) / LAG(weekly_gms) OVER (PARTITION BY seller_id ORDER BY week_number) * 100)::numeric, 2) AS wow_change
+        , weekly_revenue
+        , LAG(weekly_revenue) OVER (PARTITION BY seller_id ORDER BY week_number) AS previous_week_revenue
+        , ROUND(((weekly_revenue - LAG(weekly_revenue) OVER (PARTITION BY seller_id ORDER BY week_number)) / LAG(weekly_revenue) OVER (PARTITION BY seller_id ORDER BY week_number) * 100)::numeric, 2) AS wow_change
     FROM weekly
 ),
 steady AS (
