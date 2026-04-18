@@ -3,9 +3,11 @@ import matplotlib.pyplot as plt
 from sqlalchemy import create_engine
 import os 
 
-os.chdir(os.path.dirname(os.path.abspath(__file__))) # Changing the current working directory to the directory where the script is located, ensuring that file paths are relative to this location
+# ensure relatives paths work regardless of where the script is run from
+os.chdir(os.path.dirname(os.path.abspath(__file__))) 
 
-engine = create_engine("postgresql://thomasbrady@localhost/olist") # Creating a connection to the PostgreSQL database
+# connect to local Postgres database
+engine = create_engine("postgresql://thomasbrady@localhost/olist") 
 
 query = """
     WITH weekly AS (
@@ -79,17 +81,17 @@ JOIN cohorts c ON w.seller_id = c.seller_id
 WHERE w.week_number <= 52
 ORDER BY w.seller_id, w.week_number;
 """
-df = pd.read_sql(query, engine) # Executing the SQL query and storing the result in a DataFrame called 'df'
 
-# avg_gms_per_seller = df.groupby("seller_id")["weekly_gms"].mean()
-# erious_sellers = avg_gms_per_seller[avg_gms_per_seller >= 1000].index
-# df = df[df["seller_id"].isin(serious_sellers)]
+# execute query and load results into a DataFrame
+df = pd.read_sql(query, engine) 
 
+# calculate average weekly GMS per cohort per week
 avg_by_cohort = df.groupby(["cohort", "week_number"])["weekly_gms"].mean().reset_index()
 
 cohorts = ["fast_ramp", "slow_ramp", "did_not_stabilize"]
 colors = ["green", "orange", "red"]
 
+# plot smoothed ramp curves for each cohort
 plt.figure(figsize=(12, 6))
 for cohort, color in zip(cohorts, colors):
     cohort_data = avg_by_cohort[avg_by_cohort["cohort"] == cohort].copy()
