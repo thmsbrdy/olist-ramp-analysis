@@ -63,3 +63,22 @@ Compared to my experience with new vendor ramp at Amazon, 29.8 weeks aligns dire
 2. Clone this repo and navigate to the project folder
 
 3. Create a virtual environment and install dependencies:
+```
+   pip install -r requirements.txt
+```
+
+4. Create a local Postgres database named `olist`:
+```
+   psql postgres
+   CREATE DATABASE olist;
+```
+
+5. Run the data pipeline:
+```
+   python load_data.py
+```
+
+6. Run the visualization:
+```
+   python visualize.py
+```
